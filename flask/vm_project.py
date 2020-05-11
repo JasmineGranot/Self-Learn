@@ -1,9 +1,44 @@
 from flask import Flask, request, jsonify
 import json
+from timeit import timeit
+
+
+class Metadata:
+    def __init__(self, num_of_vms):
+        self._num_of_vm = num_of_vms
+        self._num_of_queries = 0
+        self._average = 0.0
+
+    @property
+    def num_of_vm(self):
+        return self._num_of_vm
+
+    @num_of_vm.setter
+    def num_of_vm(self, val):
+        self._num_of_vm = val
+
+    @property
+    def num_of_queries(self):
+        return self._num_of_queries
+
+    @num_of_queries.setter
+    def num_of_queries(self, val):
+        self._num_of_queries = val
+
+    def add_query(self, time):
+        new_avg = self._get_new_avg(self.num_of_queries, time)
+        self._average = new_avg
+        self.num_of_queries += 1
+
+    def _get_new_avg(self, n, new_time):
+        return ((n * self._average) + new_time) / (n + 1)
+
+    def get_data_as_dict(self):
+        return {'vm_count': self.num_of_vm, 'request_count': self.num_of_queries,
+                'average_request_time': self._average}
 
 
 class Consts:
-
     FILE_TO_LOAD_PATH = 'input-2.json'
 
     class VMConsts:
@@ -29,10 +64,25 @@ with open(Consts.FILE_TO_LOAD_PATH) as f:
 vm_in_data_list = data.get(Consts.VMConsts.VM_LIST, {})
 fw_rules_in_data_list = data.get(Consts.FWConsts.FW_LIST, {})
 
+meta = Metadata(len(vm_in_data_list))
+
 
 @app.route('/', methods=['GET'])
 def home():
     return "<h1>HOME PAGE</h1><p>This page should not be accessed .</p>"
+
+
+@app.route('/api/v1/stats', methods=['GET'])
+def api_stats():
+    """
+    Gets an API get request
+    :return: a dictionary representing metadata object.
+    """
+    start_time = timeit()
+    metadata = meta.get_data_as_dict()
+    end_time = timeit()
+    meta.add_query(end_time - start_time)
+    return jsonify(metadata)
 
 
 @app.route('/api/v1/attack', methods=['GET'])
@@ -41,6 +91,7 @@ def api_attack():
     Gets an API get request with id of a virtual machine
     :return: virtual machines with an access to the given machine.
     """
+    start_time = timeit()
     if Consts.VMConsts.QUERY_PARAM_ID in request.args:
         vm_id = request.args[Consts.VMConsts.QUERY_PARAM_ID]
     else:
@@ -50,8 +101,13 @@ def api_attack():
         potential_threat_vm = _get_attackers(vm_id)
 
         return jsonify(_get_names_of_vms(potential_threat_vm))
+
     except ValueError as err:
         return f"Error: {err}"
+
+    finally:
+        end_time = timeit()
+        meta.add_query(end_time - start_time)
 
 
 def _get_names_of_vms(vm_list):
