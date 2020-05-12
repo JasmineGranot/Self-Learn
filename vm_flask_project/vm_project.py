@@ -6,7 +6,6 @@ from vm_flask_project.stats_data import StatsData
 from vm_flask_project.consts import Consts
 
 app = Flask(__name__)
-app.config["DEBUG"] = True
 logger = create_logger("flask")
 
 
@@ -23,7 +22,7 @@ def setup_app():
     except FileNotFoundError as e:
         logger.error(e)
         raise
-
+    logger.info(f"loaded file from {app.FILE_TO_LOAD_PATH}")
     app.vm_in_data_list = data.get(Consts.VMConsts.VM_LIST, {})
     app.fw_rules_in_data_list = data.get(Consts.FWConsts.FW_LIST, {})
 
@@ -37,12 +36,11 @@ def api_stats():
     :return: a dictionary representing statsdata object.
     """
     start_time = time.time()
+    logger.info('handling stats request.')
     stats_data = app.meta.get_stats_as_dict()
     end_time = time.time()
 
     app.meta.add_query(end_time - start_time)
-    logger.error(stats_data)
-
     return jsonify(stats_data)
 
 
@@ -53,10 +51,14 @@ def api_attack():
     :return: virtual machines with an access to the given machine.
     """
     start_time = time.time()
+    logger.info('handling attack request.')
+
     if Consts.VMConsts.QUERY_PARAM_ID in request.args:
         vm_id = request.args[Consts.VMConsts.QUERY_PARAM_ID]
     else:
-        return "Error: No virtual machine id was provided. Please specify an vm_id.", 400
+        error_msg = 'No virtual machine id was provided. Please specify an vm_id.'
+        logger.error(error_msg)
+        return f'Error: {error_msg}', 400
 
     try:
         potential_threat_vm = _get_attackers(vm_id)
@@ -64,7 +66,6 @@ def api_attack():
         return jsonify(_get_names_of_vms(potential_threat_vm))
 
     except ValueError as err:
-        logger.error(err)
         return f"Error: {err}", 404
 
     finally:
@@ -111,7 +112,9 @@ def _get_vm_by_id(vm_id):
 
     # make sure vm exist in the data
     if not vm:
-        raise ValueError(f"Virtual machine with id {vm_id} was not found")
+        error_msg = f"Virtual machine with id {vm_id} was not found"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
     return vm[0]
 

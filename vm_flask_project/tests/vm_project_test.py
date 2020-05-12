@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 from vm_flask_project.vm_project import app, setup_app
+from pathlib import Path
 
 
 class JsonLoadTestCase(unittest.TestCase):
@@ -20,29 +21,29 @@ class JsonLoadTestCase(unittest.TestCase):
 class BasicTestCase(unittest.TestCase):
     @patch('vm_flask_project.vm_project.get_json_file_path')
     def setUp(self, mock_json_path_getter):
-        mock_json_path_getter.return_value = 'test.json'
+        mock_json_path_getter.return_value = Path('tests') / 'test.json'
         setup_app()
 
     def test_fail_on_non_existing_vm(self):
         tester = app.test_client(self)
         response = tester.get('/api/v1/attack?vm_id=vm-a211', content_type='html/text')
         self.assertEqual(response.status_code, 404)
-        expected = b'Error: Virtual machine with id vm-a211 was not found'
-        self.assertEqual(response.data, expected)
+        msg_expected = b"Error: Virtual machine with id vm-a211 was not found"
+        self.assertEqual(response.data, msg_expected)
 
     def test_pass_get_attacker_vms(self):
         tester = app.test_client(self)
         response = tester.get('/api/v1/attack?vm_id=vm-a211de', content_type='html/text')
         self.assertEqual(response.status_code, 200)
-        expected = b'[\n  "vm-c7bac01a07"\n]\n'
-        self.assertEqual(response.data, expected)
+        expected = ["vm-c7bac01a07"]
+        self.assertEqual(response.json, expected)
 
     def test_fail_attack_with_missing_vm_param(self):
         tester = app.test_client(self)
         response = tester.get('/api/v1/attack', content_type='html/text')
         self.assertEqual(response.status_code, 400)
-        expected = b'Error: No virtual machine id was provided. Please specify an vm_id.'
-        self.assertEqual(response.data, expected)
+        msg_expected = b"Error: No virtual machine id was provided. Please specify an vm_id."
+        self.assertEqual(response.data, msg_expected)
 
     def test_pass_clean_stats(self):
         tester = app.test_client(self)
