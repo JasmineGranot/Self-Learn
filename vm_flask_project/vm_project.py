@@ -6,7 +6,7 @@ from vm_flask_project.stats_data import StatsData
 from vm_flask_project.consts import Consts
 
 app = Flask(__name__)
-logger = create_logger("flask")
+logger = create_logger("vm-app")
 
 
 def get_json_file_path():

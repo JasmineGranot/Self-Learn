@@ -60,7 +60,7 @@ class BasicTestCase(unittest.TestCase):
         expected = {"request_count": 3, "vm_count": 2}
         self.assertEqual(response.json.get('request_count', 0), expected['request_count'])
         self.assertEqual(response.json.get('vm_count', 0), expected['vm_count'])
-        self.assertGreater(response.json.get('average_request_time', 0), 0.0)
+        self.assertGreaterEqual(response.json.get('average_request_time', 0), 0.0)
 
 
 if __name__ == '__main__':
