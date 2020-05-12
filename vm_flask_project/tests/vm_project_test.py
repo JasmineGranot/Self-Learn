@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch
 from vm_flask_project.vm_project import app, setup_app
-from pathlib import Path
 
 
 class JsonLoadTestCase(unittest.TestCase):

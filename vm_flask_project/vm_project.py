@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-
 import json
 import time
 from vm_flask_project.logger import create_logger
