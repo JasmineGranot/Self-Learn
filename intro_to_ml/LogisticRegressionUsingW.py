@@ -68,7 +68,7 @@ class WeightedLogisticRegressionClassifier:
         y = np.array([1 if label > 0 else 0 for label in y])
         while iterations < max_iterations and self.cost_function(X, y, sample_weight) > tolerance:
             iterations += 1
-            self.history['loss'].append(self.cost_function(X, y, sample_weight))
+            # self.history['loss'].append(self.cost_function(X, y, sample_weight))
             self.make_gd_step(X, y, sample_weight, lr)
         return self
 

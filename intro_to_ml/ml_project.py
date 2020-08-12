@@ -2,7 +2,9 @@ from typing import Optional
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from LogisticRegression import WeightedLogisticRegressionClassifier
+from LogisticRegressionUsingW import WeightedLogisticRegressionClassifier
+from sklearn.tree import DecisionTreeClassifier
+
 
 def plot_adaboost(X: np.ndarray,
                   y: np.ndarray,
@@ -63,7 +65,6 @@ def plot_adaboost(X: np.ndarray,
 
 
 from sklearn.datasets import make_gaussian_quantiles
-from sklearn.model_selection import train_test_split
 
 
 def make_toy_dataset(n: int = 100, random_seed: int = None):
@@ -83,13 +84,16 @@ X, y = make_toy_dataset(n=10, random_seed=10)
 print(y)
 plot_adaboost(X, y)
 
-from sklearn.ensemble import AdaBoostClassifier
 
-bench = AdaBoostClassifier(n_estimators=10, algorithm='SAMME').fit(X, y)
-plot_adaboost(X, y, bench)
-
-train_err = (bench.predict(X) != y).mean()
-print(f'Train error: {train_err:.1%}')
+# # Checking the adaboost:
+# from sklearn.model_selection import train_test_split
+# from sklearn.ensemble import AdaBoostClassifier
+#
+# bench = AdaBoostClassifier(n_estimators=10, algorithm='SAMME').fit(X, y)
+# plot_adaboost(X, y, bench)
+#
+# train_err = (bench.predict(X) != y).mean()
+# print(f'Train error: {train_err:.1%}')
 
 
 def accuracy(preds, true_vals):
@@ -97,24 +101,22 @@ def accuracy(preds, true_vals):
     return 1.0 - (float(np.count_nonzero(diff))) / len(diff)
 
 
-stump = WeightedLogisticRegressionClassifier()
-stump = stump.fit(X, y, lr=0.1, max_iterations=100) # should 10 be better than 100?
-predictions = stump.predict(X)
-loss = stump.cost_function(X, y)
-print(f"loss = {loss}")
-print(f"acc =  {accuracy(predictions, y)}")
+# # Checking the Logistic Regression model:
+# stump = WeightedLogisticRegressionClassifier()
+# stump = stump.fit(X, y, lr=0.1, max_iterations=100) # should 10 be better than 100?
+# predictions = stump.predict(X)
+# loss = stump.cost_function(X, y)
+# print(f"loss = {loss}")
+# print(f"acc =  {accuracy(predictions, y)}")
+#
+# import matplotlib.pyplot as plt
+# plt.plot(stump.history['loss'], label='loss')
 
-import matplotlib.pyplot as plt
-plt.plot(stump.history['loss'], label='loss')
-
-# Validate Results
-from sklearn.linear_model import LogisticRegression
-reg = LogisticRegression().fit(X, y)
-predictions = stump.predict(X)
-print(f"acc =  {accuracy(predictions, y)}")
-
-
-from sklearn.tree import DecisionTreeClassifier
+# # Validate Results
+# from sklearn.linear_model import LogisticRegression
+# reg = LogisticRegression().fit(X, y)
+# predictions = stump.predict(X)
+# print(f"acc =  {accuracy(predictions, y)}")
 
 
 class AdaBoost:
@@ -129,7 +131,6 @@ class AdaBoost:
         #################################################################
         #### Changes in order to show the alpha and epsilon (Part 2) ####
         #################################################################
-
         self.alpha = []
         self.epsilon = []
 
