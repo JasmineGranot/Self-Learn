@@ -217,7 +217,6 @@ class AdaBoost:
 # assign our individually defined functions as methods of our classifier
 clf = AdaBoost().fit(X, y, iters=30)
 plot_adaboost(X, y, clf)
-print("ERROR HERE")
 train_err = (clf.predict(X) != y).mean()
 print(f'Train error: {train_err:.1%}')
 
