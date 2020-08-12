@@ -270,4 +270,4 @@ def plot_staged_adaboost(X, y, clf, iters=10):
 
 
 clf = AdaBoost().fit(X, y, iters=10)
-plot_staged_adaboost(X, y, clf, iters=10)
+plot_staged_adaboost(X, y, clf)
